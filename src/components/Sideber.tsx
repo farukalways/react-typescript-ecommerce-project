@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useFilter } from "./FilterContext";
 
 interface Product {
   category: string;
@@ -18,8 +19,17 @@ const Sideber = () => {
     "shoes",
     "shirt",
   ]);
-
-  console.log(categories);
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
+    setKeyword,
+  } = useFilter();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -35,6 +45,32 @@ const Sideber = () => {
     fetchCategories();
   }, []);
 
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setMinPrice(value ? parseFloat(value) : undefined);
+  };
+
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setMaxPrice(value ? parseFloat(value) : undefined);
+  };
+
+  const handleRadioChangeCategories = (category: string) => {
+    setSelectedCategory(category);
+  };
+
+  const handleKeywordClick = (keyword: string) => {
+    setKeyword(keyword);
+  };
+
+  const handleResetFilter = () => {
+    setSearchQuery("");
+    setSelectedCategory("");
+    setMinPrice(undefined);
+    setMaxPrice(undefined);
+    setKeyword("");
+  };
+
   return (
     <div className="w-64 p-5 h-screen">
       <h1 className="text-2xl font-bold mb-10 mt-4">React Store</h1>
@@ -43,17 +79,23 @@ const Sideber = () => {
           type="text"
           className="border-2 rounded px-2 sm:mb-0"
           placeholder="Search Product"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
 
         <input
           type="text"
           className="border-2 mr-2 px-5 py-3 mb-3 w-full"
           placeholder="min"
+          value={minPrice ?? ""}
+          onChange={handleMinPriceChange}
         />
         <input
           type="text"
           className="border-2 mr-2 px-5 py-3 mb-3 w-full"
           placeholder="max"
+          value={maxPrice ?? ""}
+          onChange={handleMaxPriceChange}
         />
 
         {/* categories section */}
@@ -69,6 +111,8 @@ const Sideber = () => {
                 type="radio"
                 name="category"
                 value={category}
+                checked={selectedCategory === category}
+                onChange={() => handleRadioChangeCategories(category)}
                 className="mr-2 w-4 h-4"
               />
               {category.toUpperCase()}
@@ -86,13 +130,17 @@ const Sideber = () => {
             <button
               key={index}
               className="block mb-2 px-4 py-2 w-full text-center border rounded hover:bg-gray-200"
+              onClick={() => handleKeywordClick(keyword)}
             >
               {keyword.toUpperCase()}
             </button>
           ))}
         </div>
 
-        <button className="w-full mb-4 py-2 bg-black text-white rounded mt-5">
+        <button
+          onClick={handleResetFilter}
+          className="w-full mb-4 py-2 bg-black text-white rounded mt-5"
+        >
           {" "}
           Reset Filter{" "}
         </button>
